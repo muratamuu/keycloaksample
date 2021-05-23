@@ -1,0 +1,29 @@
+version: "3"
+
+services:
+  keycloak:
+    image: jboss/keycloak
+    environment:
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: admin
+      KEYCLOAK_IMPORT: /tmp/sample_realm.json
+    volumes:
+      - ./docker/keycloak/sample_realm.json:/tmp/sample_realm.json
+    ports:
+      - 8080:8080
+    networks:
+      - oidc_net
+
+  app:
+    build: ./docker/app
+    volumes:
+      - ./docker/httpd/auth_openidc.conf:/etc/apache2/mods-enabled/auth_openidc.conf
+      - ./docker/app/php:/var/www/html
+    ports:
+      - 8081:80
+    networks:
+      - oidc_net
+
+networks:
+  oidc_net:
+    driver: bridge
